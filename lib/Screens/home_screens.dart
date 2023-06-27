@@ -17,121 +17,124 @@ class MyHome extends StatelessWidget {
         title: const Text('Todo List'),
       ),
       body: Obx(
-        () => controller.isLoading.value
+        () => controller.itemList.isEmpty
             ? const Center(
-                child: CircularProgressIndicator(),
+                child: Text(
+                  'No records available!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               )
-            : controller.itemList.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No records available!',
+            : Column(
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.only(top: 15, bottom: 15),
+                    child: const Text(
+                      'Hello Flutter',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  )
-                : Column(
-                    children: [
-                      Container(
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.only(top: 15, bottom: 15),
-                        child: const Text(
-                          'Hello Flutter',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: controller.itemList.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            ItemModel item = controller.itemList[index];
-
-                            return Card(
-                              color: Colors.lightBlueAccent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: ListTile(
-                                leading: const Icon(
-                                  Icons.note_add,
-                                  size: 40,
-                                ),
-                                title: Text(item.title.toString()),
-                                subtitle: Text(item.description.toString()),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor: Colors.blueAccent,
-                                      child: CommonWidget.commonIconButton(
-                                        onPressed: () {
-                                          showModalBottomSheet(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return MyForm(
-                                                onSave: (updatedItem) async {
-                                                  await controller
-                                                      .updateItem(updatedItem);
-                                                },
-                                                initialTitle: item.title ?? '',
-                                                initialDescription:
-                                                    item.description ?? '',
-                                              );
-                                            },
-                                          );
-                                        },
-                                        icon: Icons.edit,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    CircleAvatar(
-                                      backgroundColor: Colors.red,
-                                      child: CommonWidget.commonIconButton(
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title:
-                                                    const Text('Delete Item'),
-                                                content: const Text(
-                                                    'Are you sure you want to delete this item?'),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text('Cancel'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      await controller
-                                                          .deleteItem(item.id);
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text('OK'),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                        icon: Icons.delete,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
                   ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: controller.itemList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        ItemModel item = controller.itemList[index];
+
+                        return Card(
+                          color: Colors.lightBlueAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.note_add,
+                              size: 40,
+                            ),
+                            title: Text(item.title.toString()),
+                            subtitle: Text(item.description.toString()),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Colors.blueAccent,
+                                  child: CommonWidget.commonIconButton(
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return MyForm(
+                                            onSave: (updatedItem) async {
+                                              await controller
+                                                  .deleteItem(item.id);
+                                              await controller
+                                                  .createItem(updatedItem);
+                                              // item.title = updatedItem.title;
+                                              // item.description =
+                                              //     updatedItem.description;
+
+                                              //print(updatedItem.title);
+                                              //print(updatedItem.description);
+                                            },
+                                            initialTitle: item.title ?? '',
+                                            initialDescription:
+                                                item.description ?? '',
+                                          );
+                                        },
+                                      );
+                                    },
+                                    icon: Icons.edit,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                CircleAvatar(
+                                  backgroundColor: Colors.red,
+                                  child: CommonWidget.commonIconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text('Delete Item'),
+                                            content: const Text(
+                                                'Are you sure you want to delete this item?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Cancel'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  await controller
+                                                      .deleteItem(item.id);
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('OK'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    icon: Icons.delete,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -187,7 +190,10 @@ class MyHomeController extends GetxController {
 
     int index = itemList.indexWhere((item) => item.id == updatedItem.id);
     if (index != -1) {
-      itemList[index] = updatedItem;
+      itemList[index].title = updatedItem.title;
+      itemList[index].description = updatedItem.description;
+
+      itemList.refresh(); // Notify observers about the change
     }
   }
 

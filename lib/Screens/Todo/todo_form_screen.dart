@@ -22,7 +22,10 @@ class MyForm extends StatelessWidget {
         initialDescription: initialDescription, initialTitle: initialTitle));
 
     bool isEditing = initialTitle.isNotEmpty && initialDescription.isNotEmpty;
-
+    if (isEditing) {
+      controller.title.value = initialTitle;
+      controller.description.value = initialDescription;
+    }
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.only(
@@ -113,8 +116,13 @@ class MyForm extends StatelessWidget {
 }
 
 class MyFormController extends GetxController {
+  final RxString title = RxString('');
+  final RxString description = RxString('');
+
   late TextEditingController titleController;
   late TextEditingController descriptionController;
+  late FocusNode titleFocusNode;
+  late FocusNode descriptionFocusNode;
 
   final String initialTitle;
   final String initialDescription;
@@ -127,14 +135,20 @@ class MyFormController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    title.value = initialTitle;
+    description.value = initialDescription;
     titleController = TextEditingController(text: initialTitle);
     descriptionController = TextEditingController(text: initialDescription);
+    titleFocusNode = FocusNode();
+    descriptionFocusNode = FocusNode();
   }
 
   @override
   void onClose() {
     titleController.dispose();
     descriptionController.dispose();
+    titleFocusNode.dispose();
+    descriptionFocusNode.dispose();
     super.onClose();
   }
 }
