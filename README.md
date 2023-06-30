@@ -1,6 +1,6 @@
 # getxassignment
 
-A Flutter CRUD project using getx.
+A Flutter CRUD project using getx with one not sutible.
 
 ## Getting Started
 

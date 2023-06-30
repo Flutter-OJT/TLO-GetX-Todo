@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:getxassignment/Services/home_service.dart';
 
 import '../Models/Todo/item_model.dart';
-import '../Repositories/Todo/item_repository.dart';
 import 'Commons/common_widgets.dart';
+
 import 'Todo/todo_form_screen.dart';
 
 class MyHome extends StatelessWidget {
-  final MyHomeController controller = Get.put(MyHomeController());
+  final MyHomeService controller = Get.put(MyHomeService());
 
   @override
   Widget build(BuildContext context) {
@@ -68,18 +69,10 @@ class MyHome extends StatelessWidget {
                                       showModalBottomSheet(
                                         context: context,
                                         builder: (BuildContext context) {
-                                          return MyForm(
-                                            onSave: (updatedItem) async {
-                                              await controller
-                                                  .deleteItem(item.id);
-                                              await controller
-                                                  .createItem(updatedItem);
-                                              // item.title = updatedItem.title;
-                                              // item.description =
-                                              //     updatedItem.description;
-
-                                              //print(updatedItem.title);
-                                              //print(updatedItem.description);
+                                          return TodoForm(
+                                            onSave: (updatedItem) {
+                                              controller.updateItem(
+                                                  updatedItem, item.id!);
                                             },
                                             initialTitle: item.title ?? '',
                                             initialDescription:
@@ -141,9 +134,9 @@ class MyHome extends StatelessWidget {
           showModalBottomSheet(
             context: context,
             builder: (BuildContext context) {
-              return MyForm(
-                onSave: (newItem) async {
-                  await controller.createItem(newItem);
+              return TodoForm(
+                onSave: (newItem) {
+                  controller.createItem(newItem);
                 },
                 initialDescription: '',
                 initialTitle: '',
@@ -154,53 +147,5 @@ class MyHome extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
     );
-  }
-}
-
-class MyHomeController extends GetxController {
-  final ItemRepository _repository = ItemRepository();
-  RxList<ItemModel> itemList = <ItemModel>[].obs;
-  RxBool isLoading = true.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    fetchDataFromDatabase();
-  }
-
-  Future<void> fetchDataFromDatabase() async {
-    isLoading.value = true;
-
-    List<ItemModel>? items = await _repository.list();
-
-    itemList.value = items ?? [];
-    isLoading.value = false;
-  }
-
-  Future<void> createItem(ItemModel newItem) async {
-    int? id = await _repository.create(newItem.toMap());
-    if (id != null) {
-      newItem.id = id;
-      itemList.add(newItem);
-    }
-  }
-
-  Future<void> updateItem(ItemModel updatedItem) async {
-    await _repository.update(updatedItem.id, updatedItem.toMap());
-
-    int index = itemList.indexWhere((item) => item.id == updatedItem.id);
-    if (index != -1) {
-      itemList[index].title = updatedItem.title;
-      itemList[index].description = updatedItem.description;
-
-      itemList.refresh(); // Notify observers about the change
-    }
-  }
-
-  Future<void> deleteItem(int? id) async {
-    if (id != null) {
-      await _repository.delete(id);
-      itemList.removeWhere((item) => item.id == id);
-    }
   }
 }

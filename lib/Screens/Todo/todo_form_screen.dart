@@ -2,30 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../Models/Todo/item_model.dart';
+import '../../Services/todo_form_service.dart';
 import '../Commons/common_widgets.dart';
 
-class MyForm extends StatelessWidget {
-  final Function(ItemModel) onSave;
+class TodoForm extends StatelessWidget {
+  final void Function(ItemModel) onSave;
   final String initialTitle;
   final String initialDescription;
 
-  MyForm({
+  TodoForm({
     Key? key,
+    required this.onSave,
     required this.initialTitle,
     required this.initialDescription,
-    required this.onSave,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final MyFormController controller = Get.put(MyFormController(
-        initialDescription: initialDescription, initialTitle: initialTitle));
+    final TodoFormService controller = Get.put(TodoFormService());
+    controller.initializeData(initialTitle, initialDescription);
 
-    bool isEditing = initialTitle.isNotEmpty && initialDescription.isNotEmpty;
-    if (isEditing) {
-      controller.title.value = initialTitle;
-      controller.description.value = initialDescription;
-    }
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.only(
@@ -39,7 +35,7 @@ class MyForm extends StatelessWidget {
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  isEditing ? 'Todo Edit' : 'Todo Create',
+                  controller.isEditing.value ? 'Todo Edit' : 'Todo Create',
                   style: CommonWidget.titleText(),
                 ),
               ),
@@ -52,11 +48,15 @@ class MyForm extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
+                autovalidateMode: AutovalidateMode.always,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a title';
                   }
                   return null;
+                },
+                onSaved: (value) {
+                  controller.initialTitle.value = value!;
                 },
               ),
               const SizedBox(height: 16),
@@ -70,11 +70,15 @@ class MyForm extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
+                autovalidateMode: AutovalidateMode.always,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
                   }
                   return null;
+                },
+                onSaved: (value) {
+                  controller.initialDescription.value = value!;
                 },
               ),
               const SizedBox(height: 16),
@@ -90,9 +94,8 @@ class MyForm extends StatelessWidget {
                           description: controller.descriptionController.text,
                         );
 
-                        await onSave(newItem);
-                        controller.titleController.clear();
-                        controller.descriptionController.clear();
+                        onSave(newItem);
+                        controller.clearFields();
                         Navigator.of(context).pop();
                       }
                     },
@@ -103,7 +106,8 @@ class MyForm extends StatelessWidget {
                         ),
                       ),
                     ),
-                    child: Text(isEditing ? 'Update' : 'Create'),
+                    child:
+                        Text(controller.isEditing.value ? 'Update' : 'Create'),
                   ),
                 ],
               ),
@@ -112,43 +116,5 @@ class MyForm extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class MyFormController extends GetxController {
-  final RxString title = RxString('');
-  final RxString description = RxString('');
-
-  late TextEditingController titleController;
-  late TextEditingController descriptionController;
-  late FocusNode titleFocusNode;
-  late FocusNode descriptionFocusNode;
-
-  final String initialTitle;
-  final String initialDescription;
-
-  MyFormController({
-    required this.initialTitle,
-    required this.initialDescription,
-  });
-
-  @override
-  void onInit() {
-    super.onInit();
-    title.value = initialTitle;
-    description.value = initialDescription;
-    titleController = TextEditingController(text: initialTitle);
-    descriptionController = TextEditingController(text: initialDescription);
-    titleFocusNode = FocusNode();
-    descriptionFocusNode = FocusNode();
-  }
-
-  @override
-  void onClose() {
-    titleController.dispose();
-    descriptionController.dispose();
-    titleFocusNode.dispose();
-    descriptionFocusNode.dispose();
-    super.onClose();
   }
 }
