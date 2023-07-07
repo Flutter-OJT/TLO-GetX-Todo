@@ -1,13 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../Models/Todo/item_model.dart';
 import '../Repositories/Todo/item_repository.dart';
 
 class MyHomeService extends GetxController {
+  final titleController = TextEditingController().obs;
+  final descriptionController = TextEditingController().obs;
   final ItemRepository _repository = ItemRepository();
   RxList<ItemModel> itemList = <ItemModel>[].obs;
   RxBool isLoading = true.obs;
-
+  RxBool isEditing = false.obs;
   @override
   void onInit() {
     super.onInit();

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class TodoFormService extends GetxController {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+  final titleController = TextEditingController().obs;
+  final descriptionController = TextEditingController().obs;
   final FocusNode titleFocusNode = FocusNode();
   final FocusNode descriptionFocusNode = FocusNode();
 
@@ -23,8 +23,9 @@ class TodoFormService extends GetxController {
   void initializeData(String initialTitle, String initialDescription) {
     this.initialTitle.value = initialTitle;
     this.initialDescription.value = initialDescription;
-    titleController.text = initialTitle;
-    descriptionController.text = initialDescription;
+    titleController.value.text = initialTitle;
+    descriptionController.value.text = initialDescription;
+
     isEditing.value = initialTitle.isNotEmpty || initialDescription.isNotEmpty;
   }
 
@@ -37,14 +38,14 @@ class TodoFormService extends GetxController {
   }
 
   void clearFields() {
-    titleController.clear();
-    descriptionController.clear();
+    titleController.value.clear();
+    descriptionController.value.clear();
   }
 
   @override
   void onClose() {
-    titleController.dispose();
-    descriptionController.dispose();
+    titleController.value.dispose();
+    descriptionController.value.dispose();
     titleFocusNode.dispose();
     descriptionFocusNode.dispose();
     super.onClose();

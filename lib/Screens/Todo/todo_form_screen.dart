@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+//import 'package:get/get.dart';
 
 import '../../Models/Todo/item_model.dart';
-import '../../Services/todo_form_service.dart';
+//import '../../Services/todo_form_service.dart';
 import '../Commons/common_widgets.dart';
 
 class TodoForm extends StatelessWidget {
   final void Function(ItemModel) onSave;
-  final String initialTitle;
-  final String initialDescription;
-
+  final TextEditingController initialTitle;
+  final TextEditingController initialDescription;
+  final bool isEditing;
   TodoForm({
     Key? key,
     required this.onSave,
     required this.initialTitle,
     required this.initialDescription,
+    required this.isEditing,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final TodoFormService controller = Get.put(TodoFormService());
-    controller.initializeData(initialTitle, initialDescription);
+    // final TodoFormService controller = Get.put(TodoFormService());
+    //controller.initializeData(initialTitle.text, initialDescription.text);
 
     return SingleChildScrollView(
       child: Container(
@@ -35,13 +36,13 @@ class TodoForm extends StatelessWidget {
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  controller.isEditing.value ? 'Todo Edit' : 'Todo Create',
+                  isEditing ? 'Todo Edit' : 'Todo Create',
                   style: CommonWidget.titleText(),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: controller.titleController,
+                controller: initialTitle,
                 decoration: InputDecoration(
                   hintText: 'Title',
                   border: OutlineInputBorder(
@@ -55,13 +56,10 @@ class TodoForm extends StatelessWidget {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  controller.initialTitle.value = value!;
-                },
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: controller.descriptionController,
+                controller: initialDescription,
                 maxLines: 5,
                 decoration: InputDecoration(
                   alignLabelWithHint: true,
@@ -77,9 +75,6 @@ class TodoForm extends StatelessWidget {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  controller.initialDescription.value = value!;
-                },
               ),
               const SizedBox(height: 16),
               Row(
@@ -87,17 +82,14 @@ class TodoForm extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      if (controller.titleController.text.isNotEmpty &&
-                          controller.descriptionController.text.isNotEmpty) {
-                        final newItem = ItemModel(
-                          title: controller.titleController.text,
-                          description: controller.descriptionController.text,
-                        );
+                      final newItem = ItemModel(
+                        title: initialTitle.text,
+                        description: initialDescription.text,
+                      );
 
-                        onSave(newItem);
-                        controller.clearFields();
-                        Navigator.of(context).pop();
-                      }
+                      onSave(newItem);
+                      // controller.clearFields();
+                      Navigator.of(context).pop();
                     },
                     style: CommonWidget.primaryButtonStyle().copyWith(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -106,8 +98,7 @@ class TodoForm extends StatelessWidget {
                         ),
                       ),
                     ),
-                    child:
-                        Text(controller.isEditing.value ? 'Update' : 'Create'),
+                    child: Text(isEditing ? 'Update' : 'Create'),
                   ),
                 ],
               ),

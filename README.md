@@ -1,6 +1,6 @@
 # getxassignment
 
-A Flutter CRUD project using getx with one not sutible.
+A Flutter CRUD project using getx nav-route complete.
 
 ## Getting Started
 

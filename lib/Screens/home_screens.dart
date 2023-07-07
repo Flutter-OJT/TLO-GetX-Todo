@@ -6,7 +6,9 @@ import '../Models/Todo/item_model.dart';
 import 'Commons/common_widgets.dart';
 
 import 'Todo/todo_form_screen.dart';
+import 'itemlist_screen.dart';
 
+//import '../Services/todo_form_service.dart';
 class MyHome extends StatelessWidget {
   final MyHomeService controller = Get.put(MyHomeService());
 
@@ -42,88 +44,111 @@ class MyHome extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: controller.itemList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        ItemModel item = controller.itemList[index];
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: ListView.builder(
+                        itemCount: controller.itemList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          ItemModel item = controller.itemList[index];
 
-                        return Card(
-                          color: Colors.lightBlueAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ListTile(
-                            leading: const Icon(
-                              Icons.note_add,
-                              size: 40,
-                            ),
-                            title: Text(item.title.toString()),
-                            subtitle: Text(item.description.toString()),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.blueAccent,
-                                  child: CommonWidget.commonIconButton(
-                                    onPressed: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return TodoForm(
-                                            onSave: (updatedItem) {
-                                              controller.updateItem(
-                                                  updatedItem, item.id!);
+                          return GestureDetector(
+                            onTap: () {
+                              //Navigator.pushNamed(context, '/itemlist_screen');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ItemList(itemlist: item)),
+                              );
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.lightBlueAccent,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ListTile(
+                                leading: const Icon(
+                                  Icons.note_add,
+                                  size: 40,
+                                ),
+                                title: Text(item.title.toString()),
+                                subtitle: Text(item.description.toString()),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: Colors.blueAccent,
+                                      child: CommonWidget.commonIconButton(
+                                        onPressed: () {
+                                          controller.titleController.value
+                                              .text = item.title!;
+                                          controller.descriptionController.value
+                                              .text = item.description!;
+                                          showModalBottomSheet(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return TodoForm(
+                                                onSave: (updatedItem) {
+                                                  controller.updateItem(
+                                                      updatedItem, item.id!);
+                                                },
+                                                initialTitle: controller
+                                                    .titleController.value,
+                                                initialDescription: controller
+                                                    .descriptionController
+                                                    .value,
+                                                isEditing: true,
+                                              );
                                             },
-                                            initialTitle: item.title ?? '',
-                                            initialDescription:
-                                                item.description ?? '',
                                           );
                                         },
-                                      );
-                                    },
-                                    icon: Icons.edit,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                CircleAvatar(
-                                  backgroundColor: Colors.red,
-                                  child: CommonWidget.commonIconButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: const Text('Delete Item'),
-                                            content: const Text(
-                                                'Are you sure you want to delete this item?'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text('Cancel'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  await controller
-                                                      .deleteItem(item.id);
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text('OK'),
-                                              ),
-                                            ],
+                                        icon: Icons.edit,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    CircleAvatar(
+                                      backgroundColor: Colors.red,
+                                      child: CommonWidget.commonIconButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title:
+                                                    const Text('Delete Item'),
+                                                content: const Text(
+                                                    'Are you sure you want to delete this item?'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: const Text('Cancel'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      await controller
+                                                          .deleteItem(item.id);
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: const Text('OK'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
                                           );
                                         },
-                                      );
-                                    },
-                                    icon: Icons.delete,
-                                  ),
+                                        icon: Icons.delete,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -138,8 +163,9 @@ class MyHome extends StatelessWidget {
                 onSave: (newItem) {
                   controller.createItem(newItem);
                 },
-                initialDescription: '',
-                initialTitle: '',
+                initialDescription: controller.descriptionController.value,
+                initialTitle: controller.titleController.value,
+                isEditing: false,
               );
             },
           );
